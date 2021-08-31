@@ -1,5 +1,6 @@
 import express from 'express'
 import { ContentfulService } from './services/contentful'
+import { ExcelService } from './services/excel'
 
 const app = express()
 
@@ -10,6 +11,12 @@ app.get('/', (req, res) => {
   client.getEntries().then((entries) => {
     console.log('entries', entries)
   })
+
+  // Test Read Excel
+  let excel = new ExcelService()
+  console.log(excel)
+  excel.getSheet()
+
   res.send('Well done test!')
 })
 

@@ -8,9 +8,14 @@
       "type": "node",
       "request": "launch",
       "name": "Launch",
-      "program": "${workspaceRoot}/dist/index.js",
-      "cwd": "${workspaceRoot}",
-      "sourceMaps": true
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "*": "${workspaceRoot}/src/*"
+      },
+      "preLaunchTask": "tsc: build - tsconfig.json",
+      "internalConsoleOptions": "openOnSessionStart",
+      "justMyCode": false,
+      "program": "${workspaceRoot}/src/index.ts"
     }
   ]
 }
