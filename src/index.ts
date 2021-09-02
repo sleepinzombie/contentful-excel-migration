@@ -1,6 +1,6 @@
 import express from 'express';
 import { ContentfulService } from './services/contentful';
-import { ExcelService } from './services/excel';
+import { parseExcelSheet } from './controllers/excel.controller';
 
 const app = express();
 
@@ -20,10 +20,7 @@ app.get('/', (req, res) => {
       console.error(error);
     });
 
-  // Test Read Excel
-  let excel = new ExcelService();
-  console.log(excel);
-  excel.getSheet();
+  parseExcelSheet(req, res);
 
   res.send('Well done test!');
 });
