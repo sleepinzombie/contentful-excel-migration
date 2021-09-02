@@ -21,6 +21,7 @@
   "homepage": "https://github.com/sleepinzombie/contentful-excel-migration#readme",
   "dependencies": {
     "contentful": "^8.5.0",
+    "dotenv": "^10.0.0",
     "exceljs": "^4.3.0",
     "express": "^4.17.1"
   },

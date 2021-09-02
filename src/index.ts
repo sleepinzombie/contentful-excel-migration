@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import { ContentfulService } from './services/contentful';
 import { parseExcelSheet } from './controllers/excel.controller';
@@ -5,6 +6,7 @@ import { parseExcelSheet } from './controllers/excel.controller';
 const app = express();
 
 app.get('/', (req, res) => {
+  console.log(process.env);
   let contentful = new ContentfulService();
   const client = contentful.client;
   client
