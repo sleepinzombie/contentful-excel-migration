@@ -46,11 +46,10 @@ class ExcelService {
     if (sheets instanceof Array) {
       for (let sheet of sheets) {
         for (let field in fields) {
-          const fieldValue: number[] = fields[field];
-
+          const fieldValues: number[] = fields[field];
           fieldObject[field] = sheet
-            .getRow(fieldValue[0])
-            .getCell(fieldValue[1]).text;
+            .getRow(fieldValues[0])
+            .getCell(fieldValues[1]).text;
         }
         extractedSheets[sheet.id] = { ...fieldObject };
       }
