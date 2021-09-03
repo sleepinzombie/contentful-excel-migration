@@ -1,30 +1,22 @@
 import 'dotenv/config';
 import express from 'express';
-import { ContentfulService } from './services/contentful';
+import { index as ContentfulIndex } from './controllers/contentful.controller';
+import { index as ContentfulManagementIndex } from './controllers/contentful-management.controller';
 import { parseExcelSheet } from './controllers/excel.controller';
 
 const app = express();
 
-app.get('/', (req, res) => {
-  console.log(process.env);
-  let contentful = new ContentfulService();
-  const client = contentful.client;
-  client
-    .getEntries({
-      content_type: 'lesson',
-      query: 'fetch',
-      links_to_entry: '1wMm7tnKi0kIYsI24eYiKS',
-    })
-    .then((entries) => {
-      console.log('entries', entries);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
+app.get('/', async (req, res) => {
+  // Test contentful API.
+  ContentfulIndex();
 
+  // Test contentful management API.
+  ContentfulManagementIndex();
+
+  // Test excel parsing.
   parseExcelSheet(req, res);
 
-  res.send('Well done test!');
+  res.send('This is a default render page from Express.');
 });
 
 app.listen(3000, () => {
