@@ -1,4 +1,8 @@
-import { IEntriesOptions } from '../models/contentful';
+import {
+  IEntriesOptions,
+  IParentEntry,
+  IReferenceEntry,
+} from '../models/contentful';
 import { ContentfulManagementService } from '../services/contentful-management';
 
 const index = () => {
@@ -42,6 +46,9 @@ const insertReference = () => {
           modules: {
             'en-US': [referenceEntry],
           },
+          courses: {
+            'en-US': [referenceEntry],
+          },
         })
         .then((entry) => {
           console.log(entry);
@@ -50,4 +57,66 @@ const insertReference = () => {
   });
 };
 
-export { index, insert, insertReference };
+const createEntryWithReference = () => {
+  const client = new ContentfulManagementService();
+  const parentEntry: IParentEntry = {
+    contentTypeId: 'course',
+    fields: {
+      title: {
+        'en-US': 'Course Test title',
+      },
+    },
+    references: ['lessons', 'categories'],
+  };
+  const referenceEntries: IReferenceEntry[][] = [
+    [
+      {
+        contentTypeId: 'lesson',
+        entries: [
+          {
+            fields: {
+              title: {
+                'en-US': 'Lesson Test title 1',
+              },
+            },
+          },
+          {
+            fields: {
+              title: {
+                'en-US': 'Lesson Test title 2',
+              },
+            },
+          },
+        ],
+      },
+    ],
+    [
+      {
+        contentTypeId: 'category',
+        entries: [
+          {
+            fields: {
+              title: {
+                'en-US': 'Category test title 1',
+              },
+            },
+          },
+          {
+            fields: {
+              title: {
+                'en-US': 'Category test title 2',
+              },
+            },
+          },
+        ],
+      },
+    ],
+  ];
+  client
+    .createEntryWithReference(parentEntry, referenceEntries)
+    .then((entry) => {
+      console.log(entry);
+    });
+};
+
+export { index, insert, insertReference, createEntryWithReference };

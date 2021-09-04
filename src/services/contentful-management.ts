@@ -7,7 +7,13 @@ import {
   Space,
 } from 'contentful-management/dist/typings/export-types';
 import { CONTENTFUL_CONFIG as CONFIG } from '../constants/contentful.config';
-import { IEntriesOptions, ReferenceEntry } from '../models/contentful';
+import {
+  IEntriesOptions,
+  IGlobalObject,
+  IParentEntry,
+  IReferenceEntry,
+  IReferenceSystemEntry,
+} from '../models/contentful';
 
 class ContentfulManagementService {
   /**
@@ -57,8 +63,10 @@ class ContentfulManagementService {
    * @param entryId The id of the entry that is going to be referenced.
    * @returns Object to be used when creating the parent entry.
    */
-  buildReferenceEntry = async (entryId: string): Promise<ReferenceEntry> => {
-    const entry: ReferenceEntry = {
+  buildReferenceEntry = async (
+    entryId: string
+  ): Promise<IReferenceSystemEntry> => {
+    const entry: IReferenceSystemEntry = {
       sys: {
         id: entryId,
         linkType: 'Entry',
@@ -66,6 +74,39 @@ class ContentfulManagementService {
       },
     };
     return entry;
+  };
+
+  // TODO Add method documentation when this is over.
+  // TODO Add a logic for if refnerence entries has children.
+  createEntryWithReference = async (
+    parentEntry: IParentEntry,
+    referenceEntries: IReferenceEntry[][]
+  ): Promise<Entry> => {
+    let parentReferencedEntries: any = [];
+    for (let i = 0; i < referenceEntries.length; i++) {
+      let referencedEntriesIds: IReferenceSystemEntry[] = [];
+      for (let j = 0; j < referenceEntries[i].length; j++) {
+        const refEntriesList: IReferenceEntry = referenceEntries[i][j];
+        const contentTypeId: string = refEntriesList.contentTypeId;
+        for (let k = 0; k < refEntriesList.entries.length; k++) {
+          const fields: IGlobalObject = { ...refEntriesList.entries[k].fields };
+          await this.createEntry(contentTypeId, fields).then(async (entry) => {
+            await this.buildReferenceEntry(entry.sys.id).then((entry) => {
+              referencedEntriesIds.push(entry);
+            });
+          });
+        }
+        if (parentEntry.references) {
+          parentReferencedEntries[parentEntry.references[i]] = {
+            'en-US': referencedEntriesIds,
+          };
+        }
+      }
+    }
+    return await this.createEntry(parentEntry.contentTypeId, {
+      ...parentEntry.fields,
+      ...parentReferencedEntries,
+    });
   };
 }
 

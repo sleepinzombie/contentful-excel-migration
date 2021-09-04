@@ -4,7 +4,7 @@ interface IEntriesOptions extends QueryOptions {}
 
 type ReferenceEntryTypes = 'Entry' | 'Asset';
 
-interface ReferenceEntry {
+interface IReferenceSystemEntry {
   sys: {
     id: string;
     linkType: ReferenceEntryTypes;
@@ -12,4 +12,26 @@ interface ReferenceEntry {
   };
 }
 
-export { IEntriesOptions, ReferenceEntry };
+interface IParentEntry {
+  contentTypeId: string;
+  fields: IEntriesOptions;
+  references?: string[];
+}
+
+interface IReferenceEntry {
+  contentTypeId: string;
+  entries: QueryOptions[];
+  children?: IReferenceEntry[];
+}
+
+interface IGlobalObject {
+  [key: string]: string;
+}
+
+export {
+  IEntriesOptions,
+  IGlobalObject,
+  IReferenceEntry,
+  IReferenceSystemEntry,
+  IParentEntry,
+};

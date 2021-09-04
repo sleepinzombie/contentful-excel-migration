@@ -5,6 +5,7 @@ import {
   index as ContentfulManagementIndex,
   insert as ContentfulManagementInsert,
   insertReference as ContentfulManagementInsertReference,
+  createEntryWithReference,
 } from './controllers/contentful-management.controller';
 import { parseExcelSheet } from './controllers/excel.controller';
 
@@ -18,6 +19,7 @@ app.get('/', async (req, res) => {
   // ContentfulManagementIndex();
   // ContentfulManagementInsert();
   // ContentfulManagementInsertReference();
+  createEntryWithReference();
 
   // Test excel parsing.
   // parseExcelSheet(req, res);
