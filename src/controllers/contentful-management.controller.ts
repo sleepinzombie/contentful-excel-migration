@@ -119,4 +119,15 @@ const createEntryWithReference = () => {
     });
 };
 
-export { index, insert, insertReference, createEntryWithReference };
+const createEntryAutoReference = () => {
+  const client = new ContentfulManagementService();
+  client.createEntryAutoReference();
+};
+
+export {
+  index,
+  insert,
+  insertReference,
+  createEntryWithReference,
+  createEntryAutoReference,
+};

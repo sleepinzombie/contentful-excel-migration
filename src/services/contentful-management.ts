@@ -108,6 +108,169 @@ class ContentfulManagementService {
       ...parentReferencedEntries,
     });
   };
+
+  createEntryAutoReference = () => {
+    const entry = {
+      contentTypeId: 'course',
+      fields: {
+        title: {
+          'en-US': 'Course Test Title',
+        },
+      },
+      references: [
+        [
+          {
+            contentTypeId: 'lesson',
+            entries: [
+              {
+                fields: {
+                  title: {
+                    'en-US': 'Lesson Test title 1',
+                  },
+                },
+                references: [
+                  [
+                    {
+                      contentTypeId: 'lessonCopy',
+                      entries: [
+                        {
+                          fields: {
+                            title: {
+                              'en-US': 'Lesson Copy Test Title 1',
+                            },
+                          },
+                        },
+                      ],
+                    },
+                    {
+                      contentTypeId: 'lessonCopy',
+                      entries: [
+                        {
+                          fields: {
+                            title: {
+                              'en-US': 'LessonCopy Title 2',
+                            },
+                          },
+                        },
+                      ],
+                    },
+                    ,
+                  ],
+                ],
+              },
+            ],
+          },
+        ],
+      ],
+    };
+
+    // if (entry.references) {
+    //   for (let i = 0; i < entry.references.length; i++) {
+    //     console.log(entry.references[i]);
+    //     this.recursive(entry.references);
+    //     if (entry.references[i]) {
+    //       // console.log(entry.references[i].length);
+    //       // this.recursive(entry.references[0]);
+    //       // for (let j = 0; j < entry.references[i].length; j++) {
+    //       //   console.log(entry.references[i][j].entries);
+    //       //   for (let k = 0; k < entry.references[i][j].entries.length; k++) {
+    //       //     console.log(entry.references[i][j].entries[k]);
+    //       //   }
+    //       // }
+    //     }
+    //   }
+    // }
+
+    this.recursive(entry.references).then((data) => {
+      console.log(data);
+    });
+  };
+
+  // recursive = (entry: any) => {
+  //   for (let i in entry) {
+  //     if (typeof entry[i] === 'object') {
+  //       console.log('References', entry[i]);
+  //       for (let j = 0; j < entry[i].length; j++) {
+  //         console.log(entry[i][j].entries);
+  //         for (let k = 0; k < entry[i][j].entries.length; k++) {
+  //           console.log(entry[i][j].entries[0]);
+  //           for (let l = 0; l < entry[i][j].entries[0].references.length; l++) {
+  //             console.log(entry[i][j].entries[0].references[l]);
+  //           }
+  //         }
+  //       }
+  //     }
+  //   }
+  // };
+
+  recursive = async (
+    references: any,
+    parentEntry: any = null,
+    childrenEntry: any = null,
+    parent = '',
+    data: any = []
+  ) => {
+    if (references) {
+      for (let i in references) {
+        for (let j in references[i]) {
+          for (let k in references[i][j].entries) {
+            if (references[i][j].entries[k]) {
+              const contentType = references[i][j].contentTypeId;
+              const hasNoReference =
+                !references[i][j].entries[k].hasOwnProperty('references');
+              console.log(hasNoReference);
+              if (hasNoReference) {
+                parent = contentType;
+                parentEntry = {
+                  contentTypeId: contentType,
+                  fields: references[i][j].entries[k],
+                };
+              } else {
+                childrenEntry = [
+                  [
+                    {
+                      contentTypeId: contentType,
+                      fields: references[i][j].entries[k],
+                    },
+                  ],
+                ];
+              }
+
+              data = [parentEntry, childrenEntry];
+
+              //     // const da = [
+              //     //   {
+              //     //     parent: {},
+              //     //     chilren: [{}, {}],
+              //     //   },
+              //     // ];
+              //     data.push({
+              //       contentType,
+              //       ...references[i][j].entries[k].fields,
+              //     });
+              // data.unshift([
+              //   {
+              //     ...references[i][j].entries[k],
+              //     contentTypeId: contentType,
+              //     parent: hasNoReference ? parent : '',
+              //   },
+              //   ,
+              // ]);
+            }
+
+            this.recursive(
+              references[i][j].entries[k].references,
+              parentEntry,
+              childrenEntry,
+              parent,
+              data
+            );
+          }
+        }
+      }
+    }
+    return { data };
+  };
 }
 
 export { ContentfulManagementService };
