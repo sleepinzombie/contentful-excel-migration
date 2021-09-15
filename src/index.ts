@@ -7,7 +7,10 @@ import {
   insertReference as ContentfulManagementInsertReference,
   createEntryWithReference,
 } from './controllers/contentful-management.controller';
-import { parseExcelSheet } from './controllers/excel.controller';
+import {
+  parseExcelSheet,
+  parseExcelSheetAuto,
+} from './controllers/excel.controller';
 
 const app = express();
 
@@ -22,7 +25,7 @@ app.get('/', async (req, res) => {
   createEntryWithReference();
 
   // Test excel parsing.
-  // parseExcelSheet(req, res);
+  parseExcelSheetAuto(req, res);
 
   res.send('This is a default render page from Express.');
 });

@@ -56,6 +56,91 @@ class ExcelService {
     }
     return extractedSheets;
   }
+
+  private isNA = (value: Excel.CellValue) => {
+    let hasNA = false;
+    if (typeof value === 'string') {
+      if (value.includes('N/A')) {
+        hasNA = true;
+      }
+    }
+    return hasNA;
+  };
+
+  public extractValuesFromSheetAuto(
+    sheets: Excel.Worksheet[] | Excel.Worksheet
+  ) {
+    if (sheets instanceof Array) {
+      const columnsValues = sheets[0].columns[1].values;
+      const startIndex = this.getStartingIndexFromColor(
+        sheets[0],
+        columnsValues
+      );
+      if (startIndex && columnsValues) {
+        for (let i = startIndex; i < columnsValues.length; i++) {
+          const keyFieldValue = sheets[0].getRow(i).getCell(2).value;
+          if (keyFieldValue) {
+            const adjacentCell = this.getAdjacentCell(
+              sheets[0].getRow(i),
+              keyFieldValue
+            );
+            const fieldValue = sheets[0]
+              .getRow(i)
+              .getCell(adjacentCell + 1).value;
+            if (keyFieldValue != fieldValue && !this.isNA(fieldValue)) {
+              console.log({
+                index: sheets[0].getRow(i).getCell(adjacentCell).value,
+                value: sheets[0].getRow(i).getCell(adjacentCell + 1).value,
+              });
+            }
+          }
+        }
+      }
+      for (let i = 0; i < sheets.length; i++) {
+        const sheet = sheets[i];
+      }
+    }
+  }
+
+  private getAdjacentCell = (row: any, adjacentValue: Excel.CellValue) => {
+    const cells: any[] = row._cells;
+    for (let i = 0; i < cells.length; i++) {
+      if (cells[i]) {
+        const cell = cells[i];
+        const cellValue = cell.value;
+        if (cellValue === adjacentValue) {
+          return cell._column._number;
+        }
+      }
+    }
+  };
+
+  private getStartingIndexFromColor = (
+    sheet: Excel.Worksheet,
+    columns: readonly Excel.CellValue[] | undefined
+  ) => {
+    if (columns) {
+      for (let i = 0; i < columns.length; i++) {
+        if (columns[i]) {
+          const row: any = sheet.getRow(i);
+          const rowCells: any[] = row._cells;
+          for (let j = 0; j < rowCells.length; j++) {
+            if (rowCells[j] && rowCells[j].value) {
+              const fieldColor = rowCells[j].fill;
+              if (fieldColor && 'fgColor' in fieldColor) {
+                const fgColor = fieldColor.fgColor;
+                if (fgColor && 'argb' in fgColor) {
+                  if (fgColor.argb === 'FFFF9EA1') {
+                    return i;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  };
 }
 
 export { ExcelService };

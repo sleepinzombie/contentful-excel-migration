@@ -17,4 +17,12 @@ const parseExcelSheet = async (request: any, response: any) => {
   });
 };
 
-export { parseExcelSheet };
+const parseExcelSheetAuto = async (request: any, response: any) => {
+  const excel = new ExcelService();
+  const sheet = excel.getSheets('assets/birthing-classes.xlsx', 4, 13);
+  sheet.then((worksheet) => {
+    const extractedValues = excel.extractValuesFromSheetAuto(worksheet);
+  });
+};
+
+export { parseExcelSheet, parseExcelSheetAuto };
