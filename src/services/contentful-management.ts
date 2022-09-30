@@ -45,6 +45,17 @@ class ContentfulManagementService {
   };
 
   /**
+   *
+   * @param entryId The entry ID we want to fetch from Contentful.
+   * @returns Promise containing the entry fetched.
+   */
+  getEntryById = async (entryId: string) => {
+    return this.client.then((environment: Environment) => {
+      return environment.getEntry(entryId);
+    });
+  };
+
+  /**
    * Add a new entry to Contentful.
    * @param contentTypeId The content type ID as defined in Contentful.
    * @param fields Field object that will be passed to contentful
@@ -106,6 +117,83 @@ class ContentfulManagementService {
     return await this.createEntry(parentEntry.contentTypeId, {
       ...parentEntry.fields,
       ...parentReferencedEntries,
+    });
+  };
+
+  deleteField = async (contentTypeId: string, fieldId: string) => {
+    this.client.then((environment) => {
+      environment.getContentType(contentTypeId).then((contentType) => {
+        contentType.fields.filter((field) => {
+          if (field.id === fieldId) {
+            field.omitted = true;
+
+            contentType.update().then((updatedField) => {
+              updatedField.fields.filter((field) => {
+                if (field.id === fieldId) {
+                  field.deleted = true;
+                  updatedField.update();
+                }
+              });
+            });
+          }
+        });
+        contentType.publish();
+      });
+    });
+  };
+
+  omitField = async (contentTypeId: string, fieldId: string) => {
+    this.client.then(async (environment) => {
+      const contentType = await environment.getContentType(contentTypeId);
+      contentType.fields.filter(async (field) => {
+        if (field.id === fieldId) {
+          field.omitted = true;
+          await contentType.update();
+          await contentType.publish();
+        }
+      });
+    });
+  };
+
+  deleteFieldAfterOmit = async (contentTypeId: string, fieldId: string) => {
+    this.client.then(async (environment) => {
+      const contentType = await environment.getContentType(contentTypeId);
+      contentType.fields.filter(async (field) => {
+        console.log(field);
+        if (field.id === fieldId && field.omitted === true) {
+          console.log('The field omitted value is true');
+          field.deleted = true;
+          await contentType.update();
+          await contentType.publish();
+          console.log('Field deleted');
+        }
+      });
+    });
+  };
+
+  omitAndDelete = async (contentTypeId: string, fieldId: string) => {
+    await this.omitField(contentTypeId, fieldId);
+    await this.deleteFieldAfterOmit(contentTypeId, fieldId);
+  };
+
+  deleteContentField = async (contentTypeId: string, fieldId: string) => {
+    this.client.then(async (environment) => {
+      const contentType = await environment.getContentType(contentTypeId);
+      contentType.fields.filter(async (field) => {
+        if (field.id === fieldId) {
+          field.omitted = true;
+        }
+      });
+      const omitUpdate = await contentType.update();
+      omitUpdate.fields.filter(async (field) => {
+        if (field.id === fieldId) {
+          if (field.omitted == true) {
+            field.deleted = true;
+          }
+        }
+      });
+      await omitUpdate.update();
+      await omitUpdate.publish();
     });
   };
 }
